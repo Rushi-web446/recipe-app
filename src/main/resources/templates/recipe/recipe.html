@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${recipe.name} + ' | Recipe Details'">Recipe</title>
+
+    <!-- Bootstrap CSS (Only once) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+
+    <style>
+        @media print {
+            button, input, form, .navbar, footer, .show-more {
+                display: none !important;
+            }
+
+            body {
+                margin: 1cm;
+                font-size: 12pt;
+            }
+
+            h1, h4 {
+                font-size: 20pt;
+            }
+
+            .card, .list-group-item {
+                box-shadow: none !important;
+                border: none !important;
+            }
+
+            .col-md-4 {
+                page-break-before: always;
+            }
+        }
+
+        .navbar-brand img {
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .recipe-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-top-left-radius: .5rem;
+            border-top-right-radius: .5rem;
+        }
+
+        .save-recipe-btn {
+            background-color: white;
+            border: none;
+            padding: 4px;
+            border-radius: 50%;
+        }
+
+        .save-recipe-btn:hover {
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .filter-section {
+            margin-bottom: 30px;
+        }
+
+        .dropdown-menu {
+            min-width: 15rem;
+        }
+
+        .hero-image {
+            width: 40%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        .tag {
+            background-color: #f8f9fa;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+
+        .step-number {
+            font-weight: bold;
+            color: #6c757d;
+        }
+
+        .section-title {
+            border-left: 5px solid #0d6efd;
+            padding-left: 10px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+    </style>
+
+
+</head>
+
+<!--            body     starts   hear   -->
+
+
+<body class="container py-4">
+
+<!-- Header -->
+<!-- Header -->
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top py-3">
+    <div class="container-fluid px-4">
+        <!-- Logo and Brand Name -->
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/" style="font-weight: 600; font-size: 1.4rem;">
+            <img src="/images/logo.png" alt="TasteTokri Logo" width="40" height="40" class="rounded-circle shadow-sm" />
+            <span class="text-primary">TasteTokri</span>
+        </a>
+
+        <!-- Toggler for mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Center Search Bar + Right-side Buttons -->
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <!-- Centered Search Bar -->
+            <form class="d-flex mx-auto" action="/search" method="get" style="max-width: 500px; width: 100%;">
+                <input class="form-control rounded-start-pill border-end-0" type="search" placeholder="Search recipes..." name="query" aria-label="Search">
+                <button class="btn btn-outline-primary rounded-end-pill border-start-0" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+
+            <!-- Right-side Buttons -->
+            <ul class="navbar-nav ms-auto d-flex align-items-center gap-2">
+                <li class="nav-item">
+                    <a class="btn btn-outline-success rounded-pill px-4 shadow-sm" href="/login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <!-- Logout triggers confirmation modal -->
+                    <button class="btn btn-outline-danger rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                        Logout
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-primary rounded-pill px-4 shadow-sm" href="/user/home">Saved Recipes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-warning text-dark rounded-pill px-4 shadow-sm" href="/chef/home">Uploaded Recipes</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<!-- Logout Confirmation Modal -->
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-sm">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to logout?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                <a href="/logout" class="btn btn-danger rounded-pill">Yes, Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!--<span class="badge bg-secondary"-->
+<!--      th:attr="data-base=${item.quantity}"-->
+<!--      th:text="${item.quantity}"></span>-->
+
+<!--<button class="btn btn-outline-dark mt-4" onclick="window.print()">🖨️ Print Recipe</button>-->
+
+
+
+
+<!-- MAIN CONTENT: Two Columns -->
+<div class="row mt-4">
+
+    <!-- Left: Recipe Details -->
+    <div class="col-md-8">
+        <!-- Hero Image -->
+        <div class="mb-4">
+            <img th:src="@{${recipe.recipeImage}}" alt="Recipe Image"
+                 class="img-fluid rounded" style="height: 400px; object-fit: cover;">
+            <h1 class="mt-4" th:text="${recipe.name}"></h1>
+            <p class="text-muted" th:text="${recipe.nameDescription}"></p>
+        </div>
+
+        <!-- Tags -->
+        <div class="mb-4">
+            <span class="tag" th:text="'Meal Type: ' + ${recipe.mealType}"></span>
+            <span class="tag" th:text="'Cuisine: ' + ${recipe.cuisineType}"></span>
+            <span class="tag" th:text="'Time: ' + ${recipe.timeTakeForMade} + ' mins'"></span>
+        </div>
+
+        <!-- Servings Adjuster -->
+        <div class="d-flex align-items-center mb-3">
+            <label class="me-2 fw-bold">Servings:</label>
+            <input type="number" id="servingCount" value="3" min="1" class="form-control w-auto" onchange="adjustIngredients()" />
+        </div>
+
+        <!-- Ingredients (Needed Things) -->
+        <!-- Ingredients (Needed Things) -->
+        <div class="mb-5">
+            <h4 class="section-title">Ingredients</h4>
+            <ul class="list-group" id="ingredientsList">
+                <li class="list-group-item d-flex justify-content-between align-items-center"
+                    th:each="item, iterStat : ${recipe.neededThings}"
+                    th:if="${iterStat.index} < 4"
+                    th:id="'ingredient-' + ${iterStat.index}">
+                    <span th:text="${item.itemName}"></span>
+                    <span class="badge bg-secondary ms-auto"
+                          th:attr="data-base=${item.quantity}"
+                          th:text="${item.quantity}"></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center d-none"
+                    th:each="item, iterStat : ${recipe.neededThings}"
+                    th:if="${iterStat.index} >= 4"
+                    th:id="'ingredient-extra-' + ${iterStat.index}">
+                    <span th:text="${item.itemName}"></span>
+                    <span class="badge bg-secondary ms-auto"
+                          th:attr="data-base=${item.quantity}"
+                          th:text="${item.quantity}"></span>
+                </li>
+            </ul>
+            <button class="btn btn-sm btn-outline-primary mt-2 show-more" onclick="toggleSection('ingredient')">Show More</button>
+        </div>
+
+
+
+        <!-- Nutrition Facts -->
+        <div class="mb-5">
+            <h4 class="section-title">Nutrition Facts</h4>
+            <ul class="list-group list-group-flush" id="nutritionList">
+                <li class="list-group-item d-flex justify-content-between"
+                    th:each="nut, iterStat : ${recipe.nutrition}"
+                    th:if="${iterStat.index} < 4"
+                    th:id="'nutrition-' + ${iterStat.index}">
+                    <span th:text="${nut.nutrientName}"></span>
+                    <span th:text="${nut.value}"></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between d-none"
+                    th:each="nut, iterStat : ${recipe.nutrition}"
+                    th:if="${iterStat.index} >= 4"
+                    th:id="'nutrition-extra-' + ${iterStat.index}">
+                    <span th:text="${nut.nutrientName}"></span>
+                    <span th:text="${nut.value}"></span>
+                </li>
+            </ul>
+            <button class="btn btn-sm btn-outline-primary mt-2 show-more" onclick="toggleSection('nutrition')">Show More</button>
+        </div>
+
+
+
+
+        <!-- Steps to Prepare -->
+        <div class="mb-5">
+            <h4 class="section-title">Steps to Prepare</h4>
+            <div class="list-group" id="stepsList">
+                <div class="list-group-item"
+                     th:each="step, iterStat : ${recipe.process}"
+                     th:if="${iterStat.index} < 4"
+                     th:id="'step-' + ${iterStat.index}">
+                    <div class="d-flex align-items-start">
+                        <span class="step-number me-3" th:text="'Step ' + ${step.stepNumber} + ':'"></span>
+                        <p class="mb-0" th:text="${step.description}"></p>
+                    </div>
+                </div>
+                <div class="list-group-item d-none"
+                     th:each="step, iterStat : ${recipe.process}"
+                     th:if="${iterStat.index} >= 4"
+                     th:id="'step-extra-' + ${iterStat.index}">
+                    <div class="d-flex align-items-start">
+                        <span class="step-number me-3" th:text="'Step ' + ${step.stepNumber} + ':'"></span>
+                        <p class="mb-0" th:text="${step.description}"></p>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-outline-primary mt-2 show-more" onclick="toggleSection('step')">Show More</button>
+        </div>
+
+        <!-- Save & Print Buttons -->
+        <form th:action="@{/user/save-recipe/{id}(id=${recipe.id})}" method="post" class="d-inline">
+            <button class="btn btn-success" type="submit">Save Recipe</button>
+        </form>
+        <button class="btn btn-outline-dark mt-2 ms-2" onclick="printRecipe()">🖨️ Print Recipe</button>
+    </div>
+
+
+    <!-- Right: User Profile Section -->
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h5 class="mb-3">About Chef</h5>
+
+                <div class="mb-3">
+                    <img th:if="${chefDetails.chefImage != null}" th:src="@{${chefDetails.chefImage}}"
+                         alt="User Image" class="img-fluid rounded-circle"
+                         style="width: 150px; height: 150px; object-fit: cover"/>
+                </div>
+
+                <h5 class="mb-1" th:text="${userDetails.name}">User Name</h5>
+                <p class="text-muted mt-2" th:text="${chefDetails.aboutChef}">No bio available</p>
+                <p class="text-muted mt-2" th:text="${chefDetails.experience}">No bio available</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<br><br>
+
+
+<!-- Footer -->
+<footer class="bg-light text-dark pt-5 pb-3 mt-auto shadow-sm border-top">
+    <div class="container text-center text-md-start">
+        <div class="row">
+            <!-- Branding -->
+            <div class="col-md-4 mb-4">
+                <h4 class="fw-bold text-warning">TasteTokri</h4>
+                <p class="text-muted">Your cozy corner for authentic, home-style recipes curated by chefs and everyday foodies.</p>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="col-md-4 mb-4">
+                <h6 class="fw-semibold mb-3">Quick Links</h6>
+                <ul class="list-unstyled">
+                    <li><a href="/" class="text-decoration-none text-dark">Home</a></li>
+                    <li><a href="/recipes" class="text-decoration-none text-dark">Browse Recipes</a></li>
+                    <li><a href="/login" class="text-decoration-none text-dark">Login</a></li>
+                    <li><a href="/user/home" class="text-decoration-none text-dark">Saved Recipes</a></li>
+                    <li><a href="/chef/home" class="text-decoration-none text-dark">Upload Recipes</a></li>
+                </ul>
+            </div>
+
+            <!-- Social Links -->
+            <div class="col-md-4 mb-4">
+                <h6 class="fw-semibold mb-3">Follow Us</h6>
+                <a href="#" class="text-dark me-3 fs-5"><i class="bi bi-facebook"></i></a>
+                <a href="#" class="text-dark me-3 fs-5"><i class="bi bi-instagram"></i></a>
+                <a href="#" class="text-dark me-3 fs-5"><i class="bi bi-twitter-x"></i></a>
+                <a href="#" class="text-dark fs-5"><i class="bi bi-youtube"></i></a>
+            </div>
+        </div>
+
+        <hr>
+        <div class="text-center small text-muted">
+            © 2025 TasteTokri — Designed & Developed by Rushi
+        </div>
+    </div>
+</footer>
+<!-- Bootstrap Bundle JS (Only once) -->
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Adjust ingredient quantities based on serving count
+    function adjustIngredients() {
+        const baseServings = 3;
+        const newServings = parseInt(document.getElementById("servingCount").value);
+        if (!newServings || newServings < 1) return;
+
+        const ingredientBadges = document.querySelectorAll("#ingredientsList .badge");
+        ingredientBadges.forEach(badge => {
+            const baseQuantity = parseFloat(badge.getAttribute("data-base"));
+            if (!isNaN(baseQuantity)) {
+                const newQuantity = (baseQuantity / baseServings) * newServings;
+                badge.textContent = newQuantity % 1 === 0 ? newQuantity : newQuantity.toFixed(2);
+            }
+        });
+    }
+
+    // Toggle visibility of extra items in sections (ingredients, nutrition, steps)
+    function toggleSection(section) {
+        // Get all extra items for this section
+        const extraItems = document.querySelectorAll(`[id^="${section}-extra"]`);
+        const button = event.target;
+
+        // Toggle visibility of extra items
+        extraItems.forEach(item => item.classList.toggle("d-none"));
+
+        // Update button text
+        if (button.textContent.includes("Show More")) {
+            button.textContent = "Show Less";
+        } else {
+            button.textContent = "Show More";
+        }
+    }
+
+    // Print recipe functionality
+    function printRecipe() {
+        window.print();
+    }
+</script>
+
+
+
+<!--            body     ends   hear   -->
+</body>
+
+
+</html>

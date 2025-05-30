@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+    <title>Saved Recipes - User Home</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+
+
+    <style>
+        .navbar-brand img {
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .recipe-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-top-left-radius: .5rem;
+            border-top-right-radius: .5rem;
+        }
+
+        .save-recipe-btn {
+            background-color: white;
+            border: none;
+            padding: 4px;
+            border-radius: 50%;
+        }
+
+        .save-recipe-btn:hover {
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+    .filter-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .filter-content {
+        position: absolute;
+        background-color: #fff;
+        padding: 15px;
+        min-width: 250px;
+        z-index: 1000;
+        text-align: left;
+        right: 0;
+        border-radius: 0.5rem;
+        display: none;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .filter-dropdown.show .filter-content {
+        display: block;
+    }
+
+    .filter-content h6 {
+        font-weight: 600;
+        margin-top: 10px;
+        margin-bottom: 8px;
+    }
+
+    .filter-content label {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+        margin-bottom: 6px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+
+    .filter-content label:hover {
+        background-color: #f8f9fa;
+    }
+
+    .filter-content input[type="checkbox"] {
+        cursor: pointer;
+    }
+
+    #activeFilterCount {
+        font-size: 0.7rem;
+    }
+
+
+    </style>
+
+
+
+</head>
+
+<body>
+
+
+<!-- Header -->
+<!-- Header -->
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top py-3">
+    <div class="container-fluid px-4">
+        <!-- Logo and Brand Name -->
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/" style="font-weight: 600; font-size: 1.4rem;">
+            <img src="/images/logo.png" alt="TasteTokri Logo" width="40" height="40" class="rounded-circle shadow-sm" />
+            <span class="text-primary">TasteTokri</span>
+        </a>
+
+        <!-- Toggler for mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Center Search Bar + Right-side Buttons -->
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <!-- Centered Search Bar -->
+            <form class="d-flex mx-auto" action="/search" method="get" style="max-width: 500px; width: 100%;">
+                <input class="form-control rounded-start-pill border-end-0" type="search" placeholder="Search recipes..." name="query" aria-label="Search">
+                <button class="btn btn-outline-primary rounded-end-pill border-start-0" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+
+            <!-- Right-side Buttons -->
+            <ul class="navbar-nav ms-auto d-flex align-items-center gap-2">
+                <li class="nav-item">
+                    <a class="btn btn-outline-success rounded-pill px-4 shadow-sm" href="/login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <!-- Logout triggers confirmation modal -->
+                    <button class="btn btn-outline-danger rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                        Logout
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-primary rounded-pill px-4 shadow-sm" href="/user/home">Saved Recipes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-warning text-dark rounded-pill px-4 shadow-sm" href="/chef/home">Uploaded Recipes</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+
+<!-- Logout Confirmation Modal -->
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-sm">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to logout?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                <a href="/logout" class="btn btn-danger rounded-pill">Yes, Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- Main Content -->
+<main class="container my-5">
+
+
+
+    <!-- Filter Section   :   backand and js baaki chhe   -->
+    <div class="mb-4 text-end">
+        <div class="filter-dropdown" id="filterDropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" id="filterToggleBtn" type="button">
+                Filters
+                <span id="activeFilterCount" class="badge bg-primary ms-1 d-none">0</span>
+            </button>
+            <div class="filter-content" id="filterContent">
+                <div class="filter-section">
+                    <h6>Meal Type</h6>
+                    <label><input type="checkbox" name="mealType" value="BREAKFAST"/> Breakfast</label>
+                    <label><input type="checkbox" name="mealType" value="LUNCH"/> Lunch</label>
+                    <label><input type="checkbox" name="mealType" value="DINNER"/> Dinner</label>
+                    <label><input type="checkbox" name="mealType" value="SNACK"/> Snack</label>
+                    <label><input type="checkbox" name="mealType" value="DESSERT"/> Dessert</label>
+                </div>
+                <div class="filter-section mt-3">
+                    <h6>Cuisine Type</h6>
+                    <label><input type="checkbox" name="cuisineType" value="INDIAN"/> Indian</label>
+                    <label><input type="checkbox" name="cuisineType" value="CHINESE"/> Chinese</label>
+                    <label><input type="checkbox" name="cuisineType" value="ITALIAN"/> Italian</label>
+                    <label><input type="checkbox" name="cuisineType" value="MEXICAN"/> Mexican</label>
+                    <label><input type="checkbox" name="cuisineType" value="AMERICAN"/> American</label>
+                    <label><input type="checkbox" name="cuisineType" value="STREET_FOOD"/> Street Food</label>
+                </div>
+                <div class="d-flex justify-content-between mt-3">
+                    <button id="clearFilters" class="btn btn-sm btn-outline-danger">Clear</button>
+                    <button id="applyFilters" class="btn btn-sm btn-primary">Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+<!--    alert for the saved or not-->
+
+    <div th:if="${saveMessage}" class="alert alert-info alert-dismissible fade show" role="alert">
+        <span th:text="${saveMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+
+
+    <!-- Recipe List -->
+    <div th:if="${userDetails != null && !userDetails.savedRecipes.isEmpty()}">
+        <h2 class="mb-4" th:text="'Hello, ' + ${userDetails.name} + '! Your Saved Recipes:'"></h2>
+
+            <!-- Recipe Grid -->
+            <!-- Profile + Recipes Grid Row -->
+            <div class="row g-5">
+
+                <!-- Left: Saved Recipes -->
+                <div class="col-md-8">
+                    <div class="row g-4">
+                        <div class="col-md-6" th:each="recipe : ${userDetails.savedRecipes}">
+                            <div class="card h-100 shadow-sm">
+                                <div class="position-relative">
+                                <a th:href="@{/recipes/{id}(id=${recipe.id})}">
+                                    <img th:src="@{${recipe.recipeImage}}" alt="Recipe Image"
+                                         class="recipe-img"/>
+                                </a>
+
+                                <!-- Delete Recipe Button -->
+                                <form th:action="@{/user/delete-recipe/{id}(id=${recipe.id})}" method="post"
+                                      class="position-absolute top-0 end-0 m-2">
+                                    <input type="hidden" name="_method" value="delete"/>
+                                    <button type="submit" class="btn btn-danger btn-sm"
+                                            title="Remove from Saved Recipes"
+                                            onclick="return confirm('Are you sure you want to remove this recipe?')">
+                                        &times;
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-1" th:text="${recipe.name}">Recipe Name</h5>
+                                <p class="card-text text-muted" th:text="${recipe.nameDescription}">Short
+                                    description</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <!-- Right: User Profile Section -->
+            <!-- Right: User Profile Section -->
+            <!-- Right: User Profile Section -->
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+
+                        <h5 class="mb-3">Profile</h5>
+
+                        <!-- Profile Image -->
+                        <div class="mb-3">
+                            <img th:if="${userDetails.userImage != null}"
+                                 th:src="@{${userDetails.userImage}}"
+                                 alt="User Image"
+                                 class="img-fluid rounded-circle"
+                                 style="width: 150px; height: 150px; object-fit: cover;">
+                        </div>
+
+                        <!-- User Name -->
+                        <h5 class="mb-1" th:text="${userDetails.name}">User Name</h5>
+
+                        <!-- About User (Read-only visible) -->
+                        <p class="text-muted mt-2" th:text="${userDetails.aboutUser}">No bio available</p>
+
+                        <!-- Edit Profile Button -->
+                        <button class="btn btn-outline-primary w-100 mt-2" onclick="toggleUpdateForm()">Edit Profile</button>
+
+                        <!-- Hidden Update Form -->
+                        <form id="updateProfileForm"
+                              th:action="@{/user/update-profile}"
+                              method="post"
+                              enctype="multipart/form-data"
+                              class="mt-4 text-start"
+                              style="display: none;">
+                            <div class="mb-3">
+                                <label class="form-label">Upload / Change Profile Image</label>
+                                <input type="file" class="form-control" name="imageFile">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">About You</label>
+                                <textarea class="form-control" name="aboutUser" rows="3"
+                                          placeholder="Tell us about yourself..."
+                                          th:text="${userDetails.aboutUser}"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Update Profile</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- end of row -->
+
+
+    </div>
+
+    <div th:unless="${userDetails != null && !userDetails.savedRecipes.isEmpty()}">
+        <p class="text-center fs-5">You have not added any recipes yet.</p>
+    </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="bg-light text-dark pt-5 pb-3 mt-auto shadow-sm border-top">
+    <div class="container text-center text-md-start">
+        <div class="row">
+            <!-- Branding -->
+            <div class="col-md-4 mb-4">
+                <h4 class="fw-bold text-warning">TasteTokri</h4>
+                <p class="text-muted">Your cozy corner for authentic, home-style recipes curated by chefs and everyday foodies.</p>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="col-md-4 mb-4">
+                <h6 class="fw-semibold mb-3">Quick Links</h6>
+                <ul class="list-unstyled">
+                    <li><a href="/" class="text-decoration-none text-dark">Home</a></li>
+                    <li><a href="/recipes" class="text-decoration-none text-dark">Browse Recipes</a></li>
+                    <li><a href="/login" class="text-decoration-none text-dark">Login</a></li>
+                    <li><a href="/user/home" class="text-decoration-none text-dark">Saved Recipes</a></li>
+                    <li><a href="/chef/home" class="text-decoration-none text-dark">Upload Recipes</a></li>
+                </ul>
+            </div>
+
+            <!-- Social Links -->
+            <div class="col-md-4 mb-4">
+                <h6 class="fw-semibold mb-3">Follow Us</h6>
+                <a href="#" class="text-dark me-3 fs-5"><i class="bi bi-facebook"></i></a>
+                <a href="#" class="text-dark me-3 fs-5"><i class="bi bi-instagram"></i></a>
+                <a href="#" class="text-dark me-3 fs-5"><i class="bi bi-twitter-x"></i></a>
+                <a href="#" class="text-dark fs-5"><i class="bi bi-youtube"></i></a>
+            </div>
+        </div>
+
+        <hr>
+        <div class="text-center small text-muted">
+            © 2025 TasteTokri — Designed & Developed by Rushi
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS (required for navbar and modal) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function toggleUpdateForm() {
+        const form = document.getElementById("updateProfileForm");
+        form.style.display = form.style.display === "none" ? "block" : "none";
+    }
+
+
+<!--    &lt;!&ndash; Filter Toggle Script &ndash;&gt;-->
+<!--    document.addEventListener('DOMContentLoaded', function() {-->
+<!--        const removeFiltersContainer = document.getElementById('removeFiltersContainer');-->
+<!--        const filterDropdown = document.getElementById('filterDropdown');-->
+<!--        const filterToggleBtn = document.getElementById('filterToggleBtn');-->
+<!--        const filterContent = document.getElementById('filterContent');-->
+<!--        const applyBtn = document.getElementById('applyFilters');-->
+<!--        const clearBtn = document.getElementById('clearFilters');-->
+<!--        const activeFilterCount = document.getElementById('activeFilterCount');-->
+
+<!--    // Hide filter button if "Remove All Filters" is visible (filtered state)-->
+<!--    if (removeFiltersContainer) {-->
+<!--        filterButtonContainer.style.display = 'none';-->
+<!--    }-->
+
+
+<!--        // Toggle filter dropdown-->
+<!--        filterToggleBtn.addEventListener('click', function() {-->
+<!--            filterDropdown.classList.toggle('show');-->
+<!--        });-->
+
+<!--        // Close dropdown when clicking outside-->
+<!--        document.addEventListener('click', function(event) {-->
+<!--            if (!filterDropdown.contains(event.target)) {-->
+<!--                filterDropdown.classList.remove('show');-->
+<!--            }-->
+<!--        });-->
+
+<!--        // Update active filter count-->
+<!--        function updateFilterCount() {-->
+<!--            const checkedCount = document.querySelectorAll('.filter-content input[type="checkbox"]:checked').length;-->
+<!--            if (checkedCount > 0) {-->
+<!--                activeFilterCount.textContent = checkedCount;-->
+<!--                activeFilterCount.classList.remove('d-none');-->
+<!--            } else {-->
+<!--                activeFilterCount.classList.add('d-none');-->
+<!--            }-->
+<!--        }-->
+
+<!--        // Clear all filters-->
+<!--        clearBtn.addEventListener('click', function() {-->
+<!--            document.querySelectorAll('.filter-content input[type="checkbox"]').forEach(checkbox => {-->
+<!--                checkbox.checked = false;-->
+<!--            });-->
+<!--            updateFilterCount();-->
+<!--        });-->
+
+<!--        // Apply filters-->
+<!--        applyBtn.addEventListener('click', function() {-->
+<!--            const selectedMealTypes = Array.from(document.querySelectorAll('input[name="mealType"]:checked'))-->
+<!--                .map(el => el.value);-->
+<!--            const selectedCuisineTypes = Array.from(document.querySelectorAll('input[name="cuisineType"]:checked'))-->
+<!--                .map(el => el.value);-->
+
+<!--            // Construct URL with query parameters-->
+<!--            const params = new URLSearchParams();-->
+
+<!--            if (selectedMealTypes.length > 0) {-->
+<!--                params.append('mealTypes', selectedMealTypes.join(','));-->
+<!--            }-->
+
+<!--            if (selectedCuisineTypes.length > 0) {-->
+<!--                params.append('cuisineTypes', selectedCuisineTypes.join(','));-->
+<!--            }-->
+
+<!--            // Close dropdown-->
+<!--            filterDropdown.classList.remove('show');-->
+
+<!--            // Redirect to filtered page-->
+<!--            window.location.href = `/user/home?${params.toString()}`;-->
+<!--        });-->
+
+<!--        // Update count when checkboxes change-->
+<!--        document.querySelectorAll('.filter-content input[type="checkbox"]').forEach(checkbox => {-->
+<!--            checkbox.addEventListener('change', updateFilterCount);-->
+<!--        });-->
+<!--    });-->
+
+</script>
+
+</body>
+</html>

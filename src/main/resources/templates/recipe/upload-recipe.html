@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Recipe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <style>
+        .section-title {
+            margin-top: 30px;
+            border-left: 4px solid #0d6efd;
+            padding-left: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="container py-4">
+
+<h2>Upload Recipe</h2>
+
+<form action="/chef/upload-recipe" method="post" enctype="multipart/form-data">
+    <!-- Recipe Name -->
+    <div class="mb-3">
+        <label class="form-label">Recipe Name</label>
+        <input type="text" class="form-control" name="name" required />
+    </div>
+
+    <!-- Name Description -->
+    <div class="mb-3">
+        <label class="form-label">Short Description</label>
+        <input type="text" class="form-control" name="nameDescription" />
+    </div>
+
+    <!-- About Recipe -->
+    <div class="mb-3">
+        <label class="form-label">About Recipe</label>
+        <textarea class="form-control" name="aboutRecipe" rows="4" placeholder="Describe the recipe..."></textarea>
+    </div>
+
+    <!-- Time to Make -->
+    <div class="mb-3">
+        <label class="form-label">Time to Make (in minutes)</label>
+        <input type="number" class="form-control" name="timeTakeForMade" min="1" placeholder="e.g. 45" required />
+    </div>
+
+    <!-- Meal Type -->
+    <div class="mb-3">
+        <label class="form-label">Meal Type</label>
+        <select class="form-select" name="mealType" required>
+            <option value="">Select Meal Type</option>
+            <option value="BREAKFAST">Breakfast</option>
+            <option value="LUNCH">Lunch</option>
+            <option value="DINNER">Dinner</option>
+            <option value="SNACK">Snack</option>
+            <option value="DESSERT">Dessert</option>
+        </select>
+    </div>
+
+    <!-- Cuisine Type -->
+    <div class="mb-3">
+        <label class="form-label">Cuisine Type</label>
+        <select class="form-select" name="cuisineType" required>
+            <option value="">Select Cuisine</option>
+            <option value="INDIAN">Indian</option>
+            <option value="CHINESE">Chinese</option>
+            <option value="ITALIAN">Italian</option>
+            <option value="MEXICAN">Mexican</option>
+            <option value="FRENCH">French</option>
+            <option value="JAPANESE">Japanese</option>
+            <option value="THAI">Thai</option>
+        </select>
+    </div>
+
+    <!-- Recipe Image -->
+    <div class="mb-3">
+        <label class="form-label">Recipe Image</label>
+        <input type="file" class="form-control" name="imageFile" accept="image/*" required />
+    </div>
+
+    <!-- Ingredients -->
+    <h5 class="section-title">Ingredients</h5>
+    <div id="ingredients-section"></div>
+    <button type="button" class="btn btn-outline-primary btn-sm mb-3" onclick="addIngredient()">+ Add Ingredient</button>
+
+    <!-- Nutrition Facts -->
+    <h5 class="section-title">Nutrition Facts</h5>
+    <div id="nutrition-section"></div>
+    <button type="button" class="btn btn-outline-success btn-sm mb-3" onclick="addNutrition()">+ Add Nutrition</button>
+
+    <!-- Steps -->
+    <h5 class="section-title">Steps to Prepare</h5>
+    <div id="process-section"></div>
+    <button type="button" class="btn btn-outline-secondary btn-sm mb-4" onclick="addStep()">+ Add Step</button>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-success">Upload Recipe</button>
+</form>
+
+<script>
+    let ingredientIndex = 0;
+    function addIngredient() {
+        const section = document.getElementById("ingredients-section");
+        section.insertAdjacentHTML("beforeend", `
+            <div class="row mb-2" id="ingredient-${ingredientIndex}">
+                <div class="col">
+                    <input type="text" class="form-control" name="neededThings[${ingredientIndex}].itemName" placeholder="Item name" required>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" name="neededThings[${ingredientIndex}].quantity" placeholder="Quantity" required>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeElement('ingredient-${ingredientIndex}')">x</button>
+                </div>
+            </div>
+        `);
+        ingredientIndex++;
+    }
+
+    let nutritionIndex = 0;
+    function addNutrition() {
+        const section = document.getElementById("nutrition-section");
+        section.insertAdjacentHTML("beforeend", `
+            <div class="row mb-2" id="nutrition-${nutritionIndex}">
+                <div class="col">
+                    <input type="text" class="form-control" name="nutrition[${nutritionIndex}].nutrientName" placeholder="Nutrient" required>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" name="nutrition[${nutritionIndex}].value" placeholder="Value" required>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeElement('nutrition-${nutritionIndex}')">x</button>
+                </div>
+            </div>
+        `);
+        nutritionIndex++;
+    }
+
+    let stepIndex = 0;
+    function addStep() {
+        const section = document.getElementById("process-section");
+        section.insertAdjacentHTML("beforeend", `
+            <div class="row mb-2" id="step-${stepIndex}">
+                <div class="col-1">
+                    <input type="number" class="form-control" name="process[${stepIndex}].stepNumber" value="${stepIndex + 1}" min="1" required>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" name="process[${stepIndex}].description" placeholder="Step description" required>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeElement('step-${stepIndex}')">x</button>
+                </div>
+            </div>
+        `);
+        stepIndex++;
+    }
+
+    function removeElement(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    }
+</script>
+
+</body>
+</html>
