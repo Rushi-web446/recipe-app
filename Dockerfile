@@ -1,12 +1,10 @@
-# Step 1: Build the app
-FROM maven:3.9-eclipse-temurin-17 AS builder
-WORKDIR /app
-COPY . .
-RUN mvn clean package -DskipTests
+FROM openjdk:21-slim
 
-# Step 2: Run the app
-FROM eclipse-temurin:17-jdk
 WORKDIR /app
-COPY --from=builder /app/target/*.jar app.jar
+
+ARG JAR_FILE=target/recipeApp-0.0.1-SNAPSHOT.jar
+COPY ${JAR_FILE} app.jar
+
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
