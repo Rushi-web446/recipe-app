@@ -1,7 +1,7 @@
 # Stage 1: Build the Java application
 # Uses a Maven image with OpenJDK 17, matching your project's Java version.
-# Changed FROM tag to a commonly available one: maven:3-jdk-17
-FROM maven:3-jdk-17 AS build
+# Using a robust and widely available tag: maven:3.9.6-eclipse-temurin-17
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 # Set the working directory inside the build container.
 WORKDIR /app
