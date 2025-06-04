@@ -1,6 +1,7 @@
 # Stage 1: Build the Java application
 # Uses a Maven image with OpenJDK 17, matching your project's Java version.
-FROM maven:3.8.6-openjdk-17 AS build
+# Changed FROM tag to a commonly available one: maven:3-jdk-17
+FROM maven:3-jdk-17 AS build
 
 # Set the working directory inside the build container.
 WORKDIR /app
