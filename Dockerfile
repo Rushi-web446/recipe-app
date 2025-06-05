@@ -7,9 +7,8 @@ RUN mvn clean install -DskipTests
 # Stage 2: Create the final production-ready image
 FROM openjdk:17-slim
 WORKDIR /app
-
-# IMPORTANT: Expose the port your Spring Boot application runs on (default is 8080)
 EXPOSE 8080
-
 COPY --from=build /app/target/recipeApp-0.0.1-SNAPSHOT.jar app.jar
-ENTRYPOINT ["java","-jar","app.jar"]
+
+# Pass the PORT environment variable directly to Java for the server port
+ENTRYPOINT ["java","-jar","app.jar","--server.port=$PORT"]

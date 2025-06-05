@@ -7,6 +7,7 @@ import com.example.recipeapp.service.chef.ChefService;
 import com.example.recipeapp.service.recipe.RecipeService;
 import com.example.recipeapp.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,10 +29,13 @@ public class RecipeController {
     @Autowired
     ChefService chefService;
 
-    @GetMapping("/healthz") // A common path for health checks
-    public String healthCheck() {
-        return "Application is healthy!";
+
+
+    @GetMapping("/healthz")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("OK");
     }
+
 
 
 
