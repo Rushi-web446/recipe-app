@@ -7,8 +7,8 @@ RUN mvn clean install -DskipTests
 # Stage 2: Create the final production-ready image
 FROM openjdk:17-slim
 WORKDIR /app
-EXPOSE 8080
+EXPOSE 8080 # Keep this EXPOSE instruction
 COPY --from=build /app/target/recipeApp-0.0.1-SNAPSHOT.jar app.jar
 
-# Pass the PORT environment variable directly to Java for the server port
-ENTRYPOINT ["java","-jar","app.jar","--server.port=$PORT"]
+# REVERT THIS LINE: No --server.port=$PORT here
+ENTRYPOINT ["java","-jar","app.jar"]
