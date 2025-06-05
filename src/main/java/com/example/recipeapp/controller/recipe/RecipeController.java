@@ -28,6 +28,13 @@ public class RecipeController {
     @Autowired
     ChefService chefService;
 
+    @GetMapping("/healthz") // A common path for health checks
+    public String healthCheck() {
+        return "Application is healthy!";
+    }
+
+
+
 
     @GetMapping("/")
     public String loadHomePageWithAllRecipes(Model model) {
